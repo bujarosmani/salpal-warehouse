@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SalPal — Warehouse</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --black: #1a1a1a;
+  --green: #4CAF50;
+  --green-dark: #2e7d32;
+  --green-light: #e8f5e9;
+  --bg: #f0f2f0;
+  --white: #fff;
+  --border: #e0e0e0;
+  --muted: #757575;
+  --red: #c62828;
+  --orange: #e65100;
+  --blue: #1565c0;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--black);
+  min-height: 100vh;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── HOME ── */
+.home-header {
+  background: var(--black);
+  padding: 48px 20px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 20px;
+  background: var(--bg);
+  border-radius: 20px 20px 0 0;
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.logo-text { font-size: 28px; font-weight: 800; letter-spacing: -1px; color: white; }
+.logo-text span { color: var(--green); }
+.logo-sub { font-size: 11px; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.home-greeting { font-size: 15px; color: #aaa; margin-bottom: 4px; }
+.home-user { font-size: 22px; font-weight: 700; color: white; }
+
+.home-body { padding: 24px 16px; flex: 1; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.action-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+
+.action-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px 16px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+  text-decoration: none;
+}
+
+.action-card:active { transform: scale(0.97); }
+.action-card.incoming { border-color: var(--black); }
+.action-card.outgoing { border-color: var(--green-dark); }
+
+.card-icon { font-size: 32px; margin-bottom: 10px; }
+.card-title { font-size: 13px; font-weight: 800; color: var(--black); margin-bottom: 4px; }
+.card-sub { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.card-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.badge-black { background: var(--black); color: white; }
+.badge-green { background: var(--green-dark); color: white; }
+
+/* Recent */
+.recent-list { display: flex; flex-direction: column; gap: 8px; }
+
+.recent-item {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+
+.recent-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+.recent-main { flex: 1; }
+.recent-title { font-size: 13px; font-weight: 700; }
+.recent-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.recent-time { font-size: 11px; color: var(--muted); }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--white);
+  padding: 48px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
+.topbar-title { font-size: 17px; font-weight: 800; flex: 1; }
+.topbar-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  color: white; letter-spacing: 0.5px;
+}
+
+/* ── FORM ── */
+.form-body { padding: 16px; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+.form-section {
+  background: var(--white);
+  border-radius: 16px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.form-section-header {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fsh-black { background: var(--black); }
+.fsh-green { background: var(--green-dark); }
+.fsh-gray  { background: #455a64; }
+.fsh-orange { background: var(--orange); }
+.fsh-red { background: var(--red); }
+
+.form-field {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.form-field:last-child { border-bottom: none; }
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.field-label .required { color: var(--red); margin-left: 3px; }
+
+.field-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--black);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+
+.field-input:focus { border-color: var(--green); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Radio/checkbox group */
+.radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.radio-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.radio-btn.selected { border-color: var(--green-dark); background: var(--green-light); color: var(--green-dark); }
+
+.pallet-lines { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.pallet-line {
+  display: grid;
+  grid-template-columns: 1fr 80px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.pallet-select {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--black);
+  background: var(--white);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+.pallet-select:focus { border-color: var(--green); }
+
+.pallet-qty-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pallet-qty-input:focus { border-color: var(--green); }
+
+.pallet-del-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #ffebee;
+  color: var(--red);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.add-pallet-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border: 2px dashed var(--green);
+  border-radius: 10px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  margin-top: 2px;
+}
+.add-pallet-btn:active { background: #c8e6c9; }
+
+.pallet-total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  background: var(--green-dark);
+  border-radius: 0 0 14px 14px;
+  margin-top: 6px;
+}
+.pallet-total-label { font-size: 13px; font-weight: 700; color: white; }
+.pallet-total-num { font-size: 20px; font-weight: 800; color: white; }
+
+/* Checklist */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.checklist-item:last-child { border-bottom: none; }
+
+.check-box {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 14px;
+}
+.check-box.checked { background: var(--green); border-color: var(--green-dark); color: white; }
+
+.checklist-label { font-size: 14px; font-weight: 500; }
+
+/* Photo zones */
+.photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+
+.photo-slot {
+  aspect-ratio: 4/3;
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  background: var(--bg);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.photo-slot:active { transform: scale(0.97); }
+.photo-slot.taken { border-style: solid; border-color: var(--green); background: var(--green-light); }
+.photo-slot.taken::after {
+  content: '✓';
+  position: absolute; top: 6px; right: 6px;
+  width: 20px; height: 20px;
+  background: var(--green); border-radius: 50%;
+  color: white; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.photo-icon { font-size: 26px; }
+.photo-label { font-size: 10px; color: var(--muted); font-weight: 600; text-align: center; }
+
+/* Signature */
+.sig-wrap {
+  padding: 14px 16px;
+}
+.sig-canvas-wrap {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+}
+canvas { width: 100%; height: 100%; touch-action: none; }
+.sig-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.sig-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+.sig-clear { font-size: 12px; color: var(--red); background: none; border: none; font-weight: 700; cursor: pointer; padding: 4px 0; }
+
+/* Submit button */
+.submit-wrap { padding: 16px; }
+
+.btn-submit {
+  width: 100%;
+  padding: 18px;
+  border-radius: 16px;
+  border: none;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s;
+  letter-spacing: -0.2px;
+}
+.btn-submit:active { transform: scale(0.98); }
+.btn-green { background: var(--green-dark); color: white; }
+.btn-black { background: var(--black); color: white; }
+
+/* SUCCESS screen */
+.success-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--black);
+}
+.success-screen.active { display: flex; }
+.success-icon { font-size: 80px; margin-bottom: 24px; animation: pop 0.4s ease; }
+@keyframes pop { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.success-title { font-size: 28px; font-weight: 800; color: white; margin-bottom: 8px; }
+.success-sub { font-size: 15px; color: #aaa; margin-bottom: 32px; line-height: 1.6; }
+.success-ref { font-size: 12px; color: var(--green); font-weight: 700; letter-spacing: 1px; margin-bottom: 32px; }
+.btn-home {
+  padding: 16px 40px;
+  background: var(--green);
+  color: var(--black);
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--black);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 100;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="home-logo">
+      <div>
+        <div class="logo-text">SAL<span>PAL</span></div>
+        <div class="logo-sub">Warehouse · Basel</div>
+      </div>
+    </div>
+    <div class="home-greeting">Good morning,</div>
+    <div class="home-user">Warehouse Team 👋</div>
+  </div>
+
+  <div class="home-body">
+    <div class="section-label">Select Form</div>
+    <div class="action-cards">
+      <div class="action-card incoming" onclick="openForm('receiving')">
+        <div class="card-icon">📥</div>
+        <div class="card-title">Goods Receiving</div>
+        <div class="card-sub">When pallets arrive at warehouse</div>
+        <div class="card-badge badge-black">INCOMING</div>
+      </div>
+      <div class="action-card outgoing" onclick="openForm('dispatch')">
+        <div class="card-icon">📤</div>
+        <div class="card-title">Dispatch</div>
+        <div class="card-sub">When loading trailer for delivery</div>
+        <div class="card-badge badge-green">OUTGOING</div>
+      </div>
+    </div>
+
+    <div class="section-label">Recent Forms</div>
+    <div class="recent-list">
+      <div class="recent-item">
+        <div class="recent-icon" style="background:#e8f5e9;">✅</div>
+        <div class="recent-main">
+          <div class="recent-title">Dispatch — Euro Pallet SH.P.K</div>
+          <div class="recent-meta">594 × B · Hagji · Trailer #4</div>
+        </div>
+        <div class="recent-time">09:14</div>
+      </div>
+      <div class="recent-item">
+        <div class="recent-icon" style="background:#e8f5e9;">✅</div>
+        <div class="recent-main">
+          <div class="recent-title">Receiving — Scapalsace</div>
+          <div class="recent-meta">495 × C · Herolind</div>
+        </div>
+        <div class="recent-time">07:30</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ RECEIVING FORM ══════════════════ -->
+<div class="screen" id="screen-receiving">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">‹</button>
+    <div class="topbar-title">Goods Receiving Form</div>
+    <div class="topbar-badge" style="background:var(--black);">INCOMING</div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- 1. General Info -->
+    <div class="form-section">
+      <div class="form-section-header fsh-black">📋 &nbsp; General Information</div>
+      <div class="form-field">
+        <div class="field-row">
+          <div>
+            <div class="field-label">Date <span class="required">*</span></div>
+            <input type="date" class="field-input" id="r-date">
+          </div>
+          <div>
+            <div class="field-label">Time <span class="required">*</span></div>
+            <input type="time" class="field-input" id="r-time">
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Received By <span class="required">*</span></div>
+        <select class="field-input" id="r-foreman">
+          <option value="">Select foreman...</option>
+          <option>Foreman 1</option>
+          <option>Foreman 2</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Driver</div>
+        <select class="field-input" id="r-driver">
+          <option value="">Select driver...</option>
+          <option>Hagji</option>
+          <option>Herolind</option>
+          <option>Genton</option>
+          <option>3rd Party</option>
+          <option>Customer Drop-off</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <div class="field-row">
+          <div>
+            <div class="field-label">Truck Plate</div>
+            <input type="text" class="field-input" id="r-truck" placeholder="e.g. BS-123">
+          </div>
+          <div>
+            <div class="field-label">Trailer Plate</div>
+            <input type="text" class="field-input" id="r-trailer" placeholder="e.g. PRKT-03">
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Supplier / Customer <span class="required">*</span></div>
+        <input type="text" class="field-input" id="r-supplier" placeholder="e.g. Scapalsace, Migros...">
+      </div>
+      <div class="form-field">
+        <div class="field-label">Collection Ref #</div>
+        <input type="text" class="field-input" id="r-ref" placeholder="e.g. ENV287205">
+      </div>
+      <div class="form-field">
+        <div class="field-label">Arrival Type</div>
+        <div class="radio-group" id="r-arrival-type">
+          <div class="radio-btn" onclick="selectRadio('r-arrival-type', this)">Our Driver</div>
+          <div class="radio-btn" onclick="selectRadio('r-arrival-type', this)">Customer Drop-off</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Pallet Count -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">🧱 &nbsp; Pallet Count by Class</div>
+      <div class="pallet-lines" id="r-pallet-lines">
+        <div class="pallet-line">
+          <select class="pallet-select" onchange="updateTotal('r')"><option value="">Select class...</option>
+            <option value="A-NEW DE">A-NEW DE — New · Germany</option>
+            <option value="A-NEW PL">A-NEW PL — New · Poland</option>
+            <option value="A-NEW LT">A-NEW LT — New · Lithuania</option>
+            <option value="A">A — Class A</option>
+            <option value="B">B — Class B</option>
+            <option value="C">C — Class C</option>
+            <option value="SINGLE USE">SINGLE USE</option>
+            <option value="CUSTOM SIZE">CUSTOM SIZE</option>
+            <option value="DAMAGED">DAMAGED — For Repair</option>
+            <option value="UNCLASSIFIED">UNCLASSIFIED</option></select>
+          <input type="number" class="pallet-qty-input" min="0" placeholder="0" oninput="updateTotal('r')">
+          <button class="pallet-del-btn" onclick="delLine(this,'r')">×</button>
+        </div>
+      </div>
+      <div style="padding:0 12px 12px;">
+        <button class="add-pallet-btn" onclick="addLine('r')">＋ &nbsp; Add Pallet Class</button>
+      </div>
+      <div class="pallet-total-bar">
+        <div class="pallet-total-label">TOTAL PALLETS</div>
+        <div class="pallet-total-num" id="r-total">0</div>
+      </div>
+    </div>
+
+    <!-- 3. Quality Assessment -->
+    <div class="form-section">
+      <div class="form-section-header fsh-gray">🔍 &nbsp; Quality Assessment</div>
+      <div class="form-field">
+        <div class="field-label">Overall Condition</div>
+        <div class="radio-group" id="r-condition">
+          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:#2e7d32;">✅ Good</div>
+          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:var(--orange);">🔀 Mixed</div>
+          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:var(--red);">🔧 Damaged</div>
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Notes</div>
+        <textarea class="field-input" rows="2" placeholder="Any remarks about condition, damage type, etc..."></textarea>
+      </div>
+    </div>
+
+    <!-- 4. Checklist -->
+    <div class="form-section">
+      <div class="form-section-header fsh-black">📷 &nbsp; Documentation Checklist</div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Photo of cargo taken</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Photo of trailer plates taken</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Collection reference confirmed</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Damaged pallets photographed</div>
+      </div>
+    </div>
+
+    <!-- 5. Photos -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">📸 &nbsp; Photos</div>
+      <div class="photo-grid">
+        <div class="photo-slot" onclick="takePhoto(this)">
+          <div class="photo-icon">📦</div>
+          <div class="photo-label">Cargo / Load</div>
+        </div>
+        <div class="photo-slot" onclick="takePhoto(this)">
+          <div class="photo-icon">🚜</div>
+          <div class="photo-label">Trailer Plates</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Signature -->
+    <div class="form-section">
+      <div class="form-section-header fsh-black">✍️ &nbsp; Foreman Signature</div>
+      <div class="sig-wrap">
+        <div class="sig-canvas-wrap" id="r-sig-wrap">
+          <canvas id="r-sig-canvas"></canvas>
+          <div class="sig-placeholder" id="r-sig-placeholder">Tap here to sign</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-clear" onclick="clearSig('r')">Clear signature</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="btn-submit btn-black" onclick="submitForm('receiving')">
+        <span>✅</span>
+        <span>Submit Receiving Form</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ DISPATCH FORM ══════════════════ -->
+<div class="screen" id="screen-dispatch">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">‹</button>
+    <div class="topbar-title">Dispatch Form</div>
+    <div class="topbar-badge" style="background:var(--green-dark);">OUTGOING</div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- 1. General Info -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">📋 &nbsp; General Information</div>
+      <div class="form-field">
+        <div class="field-row">
+          <div>
+            <div class="field-label">Date <span class="required">*</span></div>
+            <input type="date" class="field-input" id="d-date">
+          </div>
+          <div>
+            <div class="field-label">Time <span class="required">*</span></div>
+            <input type="time" class="field-input" id="d-time">
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Prepared By <span class="required">*</span></div>
+        <select class="field-input" id="d-foreman">
+          <option value="">Select foreman...</option>
+          <option>Foreman 1</option>
+          <option>Foreman 2</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Driver <span class="required">*</span></div>
+        <select class="field-input" id="d-driver">
+          <option value="">Select driver...</option>
+          <option>Hagji</option>
+          <option>Herolind</option>
+          <option>Genton</option>
+          <option>3rd Party</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <div class="field-row">
+          <div>
+            <div class="field-label">Truck Plate</div>
+            <input type="text" class="field-input" id="d-truck" placeholder="e.g. BS-123">
+          </div>
+          <div>
+            <div class="field-label">Trailer Plate</div>
+            <input type="text" class="field-input" id="d-trailer" placeholder="e.g. PRKT-03">
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-label">Delivery Note # <span class="required">*</span></div>
+        <input type="text" class="field-input" id="d-note" placeholder="e.g. LS005338">
+      </div>
+      <div class="form-field">
+        <div class="field-label">Delivery Type</div>
+        <div class="radio-group" id="d-type">
+          <div class="radio-btn" onclick="selectRadio('d-type', this)">Own Driver</div>
+          <div class="radio-btn" onclick="selectRadio('d-type', this)">3rd Party</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Customer -->
+    <div class="form-section">
+      <div class="form-section-header fsh-black">🏢 &nbsp; Customer & Delivery Details</div>
+      <div class="form-field">
+        <div class="field-label">Customer <span class="required">*</span></div>
+        <input type="text" class="field-input" id="d-customer" placeholder="e.g. Euro Pallet SH.P.K">
+      </div>
+      <div class="form-field">
+        <div class="field-label">Delivery Address</div>
+        <input type="text" class="field-input" id="d-address" placeholder="Street, City">
+      </div>
+      <div class="form-field">
+        <div class="field-row">
+          <div>
+            <div class="field-label">Scheduled Time</div>
+            <input type="time" class="field-input" id="d-sched">
+          </div>
+          <div>
+            <div class="field-label">Fixed Time?</div>
+            <div class="radio-group" id="d-fixed" style="margin-top:2px;">
+              <div class="radio-btn" onclick="selectRadio('d-fixed', this)">Yes</div>
+              <div class="radio-btn" onclick="selectRadio('d-fixed', this)">No</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Pallets Loaded -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">🧱 &nbsp; Pallets Loaded</div>
+      <div class="pallet-lines" id="d-pallet-lines">
+        <div class="pallet-line">
+          <select class="pallet-select" onchange="updateTotal('d')"><option value="">Select class...</option>
+            <option value="A-NEW DE">A-NEW DE — New · Germany</option>
+            <option value="A-NEW PL">A-NEW PL — New · Poland</option>
+            <option value="A-NEW LT">A-NEW LT — New · Lithuania</option>
+            <option value="A">A — Class A</option>
+            <option value="B">B — Class B</option>
+            <option value="C">C — Class C</option>
+            <option value="SINGLE USE">SINGLE USE</option>
+            <option value="CUSTOM SIZE">CUSTOM SIZE</option>
+            <option value="DAMAGED">DAMAGED — For Repair</option>
+            <option value="UNCLASSIFIED">UNCLASSIFIED</option></select>
+          <input type="number" class="pallet-qty-input" min="0" placeholder="0" oninput="updateTotal('d')">
+          <button class="pallet-del-btn" onclick="delLine(this,'d')">×</button>
+        </div>
+      </div>
+      <div style="padding:0 12px 12px;">
+        <button class="add-pallet-btn" onclick="addLine('d')">＋ &nbsp; Add Pallet Class</button>
+      </div>
+      <div class="pallet-total-bar">
+        <div class="pallet-total-label">TOTAL PALLETS</div>
+        <div class="pallet-total-num" id="d-total">0</div>
+      </div>
+    </div>
+
+    <!-- 4. Checklist -->
+    <div class="form-section">
+      <div class="form-section-header fsh-black">📷 &nbsp; Documentation Checklist</div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Photo of loaded cargo taken</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Photo of trailer plates taken</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Delivery Note given to driver</div>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="checklist-label">Load secured properly on trailer</div>
+      </div>
+    </div>
+
+    <!-- 5. Photos -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">📸 &nbsp; Photos</div>
+      <div class="photo-grid">
+        <div class="photo-slot" onclick="takePhoto(this)">
+          <div class="photo-icon">📦</div>
+          <div class="photo-label">Loaded Cargo</div>
+        </div>
+        <div class="photo-slot" onclick="takePhoto(this)">
+          <div class="photo-icon">🚜</div>
+          <div class="photo-label">Trailer Plates</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Notes -->
+    <div class="form-section">
+      <div class="form-section-header fsh-gray">📝 &nbsp; Notes & Special Instructions</div>
+      <div class="form-field">
+        <textarea class="field-input" rows="3" placeholder="Special delivery instructions, fixed time notes, etc..."></textarea>
+      </div>
+    </div>
+
+    <!-- 7. Signature -->
+    <div class="form-section">
+      <div class="form-section-header fsh-green">✍️ &nbsp; Foreman Signature</div>
+      <div class="sig-wrap">
+        <div class="sig-canvas-wrap" id="d-sig-wrap">
+          <canvas id="d-sig-canvas"></canvas>
+          <div class="sig-placeholder" id="d-sig-placeholder">Tap here to sign</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-clear" onclick="clearSig('d')">Clear signature</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="btn-submit btn-green" onclick="submitForm('dispatch')">
+        <span>🚛</span>
+        <span>Submit Dispatch Form</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SUCCESS ══════════════════ -->
+<div class="success-screen" id="screen-success">
+  <div class="success-icon">✅</div>
+  <div class="success-title" id="success-title">Form Submitted!</div>
+  <div class="success-sub" id="success-sub">Form has been saved successfully.</div>
+  <div class="success-ref" id="success-ref">REF: —</div>
+  <button class="btn-home" onclick="goHome()">← Back to Home</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Init dates/times ──────────────────────────────────────────
+function initDateTime() {
+  const now = new Date();
+  const date = now.toISOString().split('T')[0];
+  const time = now.toTimeString().slice(0,5);
+  ['r-date','r-time','d-date','d-time'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id.includes('date') ? date : time;
+  });
+}
+
+// ── Screen navigation ──────────────────────────────────────────
+function openForm(type) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); });
+  document.getElementById('screen-' + type).classList.add('active');
+  window.scrollTo(0, 0);
+  initSig(type === 'receiving' ? 'r' : 'd');
+}
+
+function goHome() {
+  document.querySelectorAll('.screen, .success-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-home').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Radio buttons ──────────────────────────────────────────────
+function selectRadio(groupId, el) {
+  document.querySelectorAll('#' + groupId + ' .radio-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ── Checklist ──────────────────────────────────────────────────
+function toggleCheck(item) {
+  const box = item.querySelector('.check-box');
+  box.classList.toggle('checked');
+  box.textContent = box.classList.contains('checked') ? '✓' : '';
+}
+
+// ── Pallet total ────────────────────────────────────────────────
+function updateTotal(prefix) {
+  const container = document.getElementById(prefix + '-pallet-lines');
+  const inputs = container.querySelectorAll('.pallet-qty-input');
+  let total = 0;
+  inputs.forEach(i => { total += parseInt(i.value || 0); });
+  document.getElementById(prefix + '-total').textContent = total;
+}
+
+const PALLET_OPTIONS = `<option value="">Select class...</option>
+  <option value="A-NEW DE">A-NEW DE — New · Germany</option>
+  <option value="A-NEW PL">A-NEW PL — New · Poland</option>
+  <option value="A-NEW LT">A-NEW LT — New · Lithuania</option>
+  <option value="A">A — Class A</option>
+  <option value="B">B — Class B</option>
+  <option value="C">C — Class C</option>
+  <option value="SINGLE USE">SINGLE USE</option>
+  <option value="CUSTOM SIZE">CUSTOM SIZE</option>
+  <option value="DAMAGED">DAMAGED — For Repair</option>
+  <option value="UNCLASSIFIED">UNCLASSIFIED</option>`;
+
+function addLine(prefix) {
+  const container = document.getElementById(prefix + '-pallet-lines');
+  const line = document.createElement('div');
+  line.className = 'pallet-line';
+  line.innerHTML = `<select class="pallet-select" onchange="updateTotal('${prefix}')">${PALLET_OPTIONS}</select>
+    <input type="number" class="pallet-qty-input" min="0" placeholder="0" oninput="updateTotal('${prefix}')">
+    <button class="pallet-del-btn" onclick="delLine(this,'${prefix}')">×</button>`;
+  container.appendChild(line);
+  line.querySelector('select').focus();
+}
+
+function delLine(btn, prefix) {
+  const container = document.getElementById(prefix + '-pallet-lines');
+  if (container.querySelectorAll('.pallet-line').length <= 1) {
+    showToast('⚠️ At least one pallet line required');
+    return;
+  }
+  btn.closest('.pallet-line').remove();
+  updateTotal(prefix);
+}
+
+// ── Photo slots ─────────────────────────────────────────────────
+function takePhoto(slot) {
+  slot.classList.toggle('taken');
+  const icon = slot.querySelector('.photo-icon');
+  const label = slot.querySelector('.photo-label');
+  if (slot.classList.contains('taken')) {
+    icon.textContent = '✅';
+    label.style.color = 'var(--green-dark)';
+    label.style.fontWeight = '700';
+  } else {
+    icon.textContent = slot.dataset.origIcon || '📦';
+    label.style.color = '';
+    label.style.fontWeight = '';
+  }
+  // Store original icon
+  if (!slot.dataset.origIcon) slot.dataset.origIcon = icon.textContent === '✅' ? '📦' : icon.textContent;
+  showToast('📷 Photo marked as taken');
+}
+
+// ── Signature canvas ────────────────────────────────────────────
+const sigs = {};
+
+function initSig(prefix) {
+  const canvas = document.getElementById(prefix + '-sig-canvas');
+  const wrap = document.getElementById(prefix + '-sig-wrap');
+  if (!canvas) return;
+
+  canvas.width = wrap.offsetWidth || 340;
+  canvas.height = 140;
+
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  let drawing = false;
+  let hasSig = false;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left) * (canvas.width / rect.width), y: (src.clientY - rect.top) * (canvas.height / rect.height) };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    if (!hasSig) {
+      document.getElementById(prefix + '-sig-placeholder').classList.add('hidden') ||
+        (document.getElementById(prefix + '-sig-placeholder').style.display = 'none');
+      hasSig = true;
+    }
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }
+
+  function stop() { drawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stop);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stop);
+
+  sigs[prefix] = { ctx, canvas, hasSig: () => hasSig, clear: () => { ctx.clearRect(0, 0, canvas.width, canvas.height); hasSig = false; document.getElementById(prefix + '-sig-placeholder').style.display = ''; } };
+}
+
+function clearSig(prefix) {
+  if (sigs[prefix]) sigs[prefix].clear();
+}
+
+// ── Toast ───────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Submit ──────────────────────────────────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbx7z-PBR2R10V0vpJrKgfWObTW2DwPuIwb07FnXWxbmW4P8wkLDweyKqS5vx06rrP9H/exec';
+
+async function submitForm(type) {
+  const prefix = type === 'receiving' ? 'r' : 'd';
+
+  // Basic validation
+  const required = type === 'receiving'
+    ? ['r-date', 'r-time', 'r-foreman', 'r-supplier']
+    : ['d-date', 'd-time', 'd-foreman', 'd-driver', 'd-note', 'd-customer'];
+
+  for (const id of required) {
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) {
+      el.style.borderColor = 'var(--red)';
+      el.focus();
+      showToast('⚠️ Please fill all required fields');
+      setTimeout(() => { el.style.borderColor = ''; }, 2000);
+      return;
+    }
+  }
+
+  // Check pallet lines
+  const lines = document.querySelectorAll('#' + prefix + '-pallet-lines .pallet-line');
+  let hasValidLine = false;
+  const pallets = [];
+  lines.forEach(line => {
+    const cls = line.querySelector('.pallet-select').value;
+    const qty = parseInt(line.querySelector('.pallet-qty-input').value || 0);
+    if (cls && qty > 0) {
+      hasValidLine = true;
+      pallets.push({ class: cls, qty });
+    }
+  });
+  if (!hasValidLine) {
+    showToast('⚠️ Please add at least one pallet class with quantity');
+    return;
+  }
+
+  const total = parseInt(document.getElementById(prefix + '-total').textContent || 0);
+  const ref = (type === 'receiving' ? 'GRF' : 'DSF') + '-' + Date.now().toString().slice(-6);
+
+  // Build payload
+  let payload = { formType: type, ref, pallets, totalPallets: total };
+
+  if (type === 'receiving') {
+    payload = { ...payload,
+      date: document.getElementById('r-date').value,
+      time: document.getElementById('r-time').value,
+      foreman: document.getElementById('r-foreman').value,
+      driver: document.getElementById('r-driver').value,
+      truckPlate: document.getElementById('r-truck').value,
+      trailerPlate: document.getElementById('r-trailer').value,
+      supplier: document.getElementById('r-supplier').value,
+      collectionRef: document.getElementById('r-ref').value,
+      arrivalType: document.querySelector('#r-arrival-type .selected')?.textContent || '',
+      condition: document.querySelector('#r-condition .selected')?.textContent || '',
+      notes: document.querySelector('#screen-receiving textarea')?.value || '',
+    };
+  } else {
+    payload = { ...payload,
+      date: document.getElementById('d-date').value,
+      time: document.getElementById('d-time').value,
+      foreman: document.getElementById('d-foreman').value,
+      driver: document.getElementById('d-driver').value,
+      truckPlate: document.getElementById('d-truck').value,
+      trailerPlate: document.getElementById('d-trailer').value,
+      deliveryNote: document.getElementById('d-note').value,
+      deliveryType: document.querySelector('#d-type .selected')?.textContent || '',
+      customer: document.getElementById('d-customer').value,
+      address: document.getElementById('d-address').value,
+      scheduledTime: document.getElementById('d-sched').value,
+      fixedTime: document.querySelector('#d-fixed .selected')?.textContent || '',
+      notes: document.querySelector('#screen-dispatch textarea')?.value || '',
+    };
+  }
+
+  // Show loading
+  const btn = document.querySelector('#screen-' + (type === 'receiving' ? 'receiving' : 'dispatch') + ' .btn-submit');
+  btn.textContent = '⏳  Saving...';
+  btn.disabled = true;
+
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // Show success
+    const customer = type === 'receiving'
+      ? document.getElementById('r-supplier').value
+      : document.getElementById('d-customer').value;
+
+    document.querySelectorAll('.screen, .success-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('success-title').textContent = type === 'receiving' ? 'Receiving Form Submitted!' : 'Dispatch Form Submitted!';
+    document.getElementById('success-sub').textContent = customer + ' · ' + total + ' pallets\nSaved to Google Sheets ✅';
+    document.getElementById('success-ref').textContent = 'REF: ' + ref;
+    document.getElementById('screen-success').classList.add('active');
+    window.scrollTo(0, 0);
+
+  } catch(err) {
+    showToast('❌ Error saving. Please try again.');
+    btn.innerHTML = type === 'receiving' ? '✅ Submit Receiving Form' : '🚛 Submit Dispatch Form';
+    btn.disabled = false;
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+initDateTime();
+</script>
+</body>
+</html>
