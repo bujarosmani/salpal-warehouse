@@ -471,6 +471,46 @@ canvas { width: 100%; height: 100%; touch-action: none; }
   cursor: pointer;
 }
 
+.btn-pdf {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: 2px solid var(--green);
+  background: white;
+  color: var(--green-dark);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+.btn-pdf:active { background: var(--green-light); }
+
+.btn-whatsapp {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  background: #25D366;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+.btn-whatsapp:active { opacity: 0.85; }
+
 /* Toast */
 .toast {
   position: fixed;
@@ -490,6 +530,7 @@ canvas { width: 100%; height: 100%; touch-action: none; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -574,8 +615,8 @@ canvas { width: 100%; height: 100%; touch-action: none; }
         <div class="field-label">Received By <span class="required">*</span></div>
         <select class="field-input" id="r-foreman">
           <option value="">Select foreman...</option>
-          <option>Foreman 1</option>
-          <option>Foreman 2</option>
+          <option>Cristian</option>
+          <option>Idi</option>
         </select>
       </div>
       <div class="form-field">
@@ -608,13 +649,6 @@ canvas { width: 100%; height: 100%; touch-action: none; }
       <div class="form-field">
         <div class="field-label">Collection Ref #</div>
         <input type="text" class="field-input" id="r-ref" placeholder="e.g. ENV287205">
-      </div>
-      <div class="form-field">
-        <div class="field-label">Arrival Type</div>
-        <div class="radio-group" id="r-arrival-type">
-          <div class="radio-btn" onclick="selectRadio('r-arrival-type', this)">Our Driver</div>
-          <div class="radio-btn" onclick="selectRadio('r-arrival-type', this)">Customer Drop-off</div>
-        </div>
       </div>
     </div>
 
@@ -653,9 +687,9 @@ canvas { width: 100%; height: 100%; touch-action: none; }
       <div class="form-field">
         <div class="field-label">Overall Condition</div>
         <div class="radio-group" id="r-condition">
-          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:#2e7d32;">✅ Good</div>
-          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:var(--orange);">🔀 Mixed</div>
-          <div class="radio-btn" onclick="selectRadio('r-condition', this)" style="border-color:var(--red);">🔧 Damaged</div>
+          <div class="radio-btn" data-value="Good" onclick="selectRadio('r-condition', this)" style="border-color:#2e7d32;">✅ Good</div>
+          <div class="radio-btn" data-value="Mixed" onclick="selectRadio('r-condition', this)" style="border-color:var(--orange);">🔀 Mixed</div>
+          <div class="radio-btn" data-value="Damaged" onclick="selectRadio('r-condition', this)" style="border-color:var(--red);">🔧 Damaged</div>
         </div>
       </div>
       <div class="form-field">
@@ -664,45 +698,7 @@ canvas { width: 100%; height: 100%; touch-action: none; }
       </div>
     </div>
 
-    <!-- 4. Checklist -->
-    <div class="form-section">
-      <div class="form-section-header fsh-black">📷 &nbsp; Documentation Checklist</div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Photo of cargo taken</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Photo of trailer plates taken</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Collection reference confirmed</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Damaged pallets photographed</div>
-      </div>
-    </div>
-
-    <!-- 5. Photos -->
-    <div class="form-section">
-      <div class="form-section-header fsh-green">📸 &nbsp; Photos</div>
-      <div class="photo-grid">
-        <div class="photo-slot" id="r-photo-cargo" onclick="triggerCamera('r-cam-cargo')">
-          <input type="file" id="r-cam-cargo" accept="image/*" capture="environment" style="display:none" onchange="photoTaken(this,'r-photo-cargo','Cargo / Load')">
-          <div class="photo-icon" id="r-icon-cargo">📦</div>
-          <div class="photo-label" id="r-label-cargo">Cargo / Load</div>
-        </div>
-        <div class="photo-slot" id="r-photo-plates" onclick="triggerCamera('r-cam-plates')">
-          <input type="file" id="r-cam-plates" accept="image/*" capture="environment" style="display:none" onchange="photoTaken(this,'r-photo-plates','Trailer Plates')">
-          <div class="photo-icon" id="r-icon-plates">🚜</div>
-          <div class="photo-label" id="r-label-plates">Trailer Plates</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. Signature -->
+    <!-- 4. Signature -->
     <div class="form-section">
       <div class="form-section-header fsh-black">✍️ &nbsp; Foreman Signature</div>
       <div class="sig-wrap">
@@ -755,8 +751,8 @@ canvas { width: 100%; height: 100%; touch-action: none; }
         <div class="field-label">Prepared By <span class="required">*</span></div>
         <select class="field-input" id="d-foreman">
           <option value="">Select foreman...</option>
-          <option>Foreman 1</option>
-          <option>Foreman 2</option>
+          <option>Cristian</option>
+          <option>Idi</option>
         </select>
       </div>
       <div class="form-field">
@@ -776,22 +772,16 @@ canvas { width: 100%; height: 100%; touch-action: none; }
             <input type="text" class="field-input" id="d-truck" placeholder="e.g. BS-123">
           </div>
           <div>
-            <div class="field-label">Trailer Plate</div>
+            <div class="field-label">Trailer Plate <span class="required">*</span></div>
             <input type="text" class="field-input" id="d-trailer" placeholder="e.g. PRKT-03">
           </div>
         </div>
       </div>
       <div class="form-field">
-        <div class="field-label">Delivery Note # <span class="required">*</span></div>
+        <div class="field-label">Delivery Note #</div>
         <input type="text" class="field-input" id="d-note" placeholder="e.g. LS005338">
       </div>
-      <div class="form-field">
-        <div class="field-label">Delivery Type</div>
-        <div class="radio-group" id="d-type">
-          <div class="radio-btn" onclick="selectRadio('d-type', this)">Own Driver</div>
-          <div class="radio-btn" onclick="selectRadio('d-type', this)">3rd Party</div>
-        </div>
-      </div>
+
     </div>
 
     <!-- 2. Customer -->
@@ -814,8 +804,8 @@ canvas { width: 100%; height: 100%; touch-action: none; }
           <div>
             <div class="field-label">Fixed Time?</div>
             <div class="radio-group" id="d-fixed" style="margin-top:2px;">
-              <div class="radio-btn" onclick="selectRadio('d-fixed', this)">Yes</div>
-              <div class="radio-btn" onclick="selectRadio('d-fixed', this)">No</div>
+              <div class="radio-btn" data-value="Yes" onclick="selectRadio('d-fixed', this)">Yes</div>
+              <div class="radio-btn" data-value="No" onclick="selectRadio('d-fixed', this)">No</div>
             </div>
           </div>
         </div>
@@ -851,45 +841,8 @@ canvas { width: 100%; height: 100%; touch-action: none; }
       </div>
     </div>
 
-    <!-- 4. Checklist -->
-    <div class="form-section">
-      <div class="form-section-header fsh-black">📷 &nbsp; Documentation Checklist</div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Photo of loaded cargo taken</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Photo of trailer plates taken</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Delivery Note given to driver</div>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <div class="check-box"></div>
-        <div class="checklist-label">Load secured properly on trailer</div>
-      </div>
-    </div>
 
-    <!-- 5. Photos -->
-    <div class="form-section">
-      <div class="form-section-header fsh-green">📸 &nbsp; Photos</div>
-      <div class="photo-grid">
-        <div class="photo-slot" id="d-photo-cargo" onclick="triggerCamera('d-cam-cargo')">
-          <input type="file" id="d-cam-cargo" accept="image/*" capture="environment" style="display:none" onchange="photoTaken(this,'d-photo-cargo','Loaded Cargo')">
-          <div class="photo-icon" id="d-icon-cargo">📦</div>
-          <div class="photo-label" id="d-label-cargo">Loaded Cargo</div>
-        </div>
-        <div class="photo-slot" id="d-photo-plates" onclick="triggerCamera('d-cam-plates')">
-          <input type="file" id="d-cam-plates" accept="image/*" capture="environment" style="display:none" onchange="photoTaken(this,'d-photo-plates','Trailer Plates')">
-          <div class="photo-icon" id="d-icon-plates">🚜</div>
-          <div class="photo-label" id="d-label-plates">Trailer Plates</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. Notes -->
+    <!-- 5. Notes -->
     <div class="form-section">
       <div class="form-section-header fsh-gray">📝 &nbsp; Notes & Special Instructions</div>
       <div class="form-field">
@@ -926,7 +879,9 @@ canvas { width: 100%; height: 100%; touch-action: none; }
   <div class="success-title" id="success-title">Form Submitted!</div>
   <div class="success-sub" id="success-sub">Form has been saved successfully.</div>
   <div class="success-ref" id="success-ref">REF: —</div>
-  <button class="btn-home" onclick="goHome()">← Back to Home</button>
+  <button class="btn-pdf" id="btn-download-pdf" onclick="downloadPDF()">📄 &nbsp; Download PDF</button>
+  <button class="btn-whatsapp" id="btn-whatsapp" onclick="shareWhatsApp()">💬 &nbsp; Share via WhatsApp</button>
+  <button class="btn-home" style="margin-top:10px;" onclick="goHome()">← Back to Home</button>
 </div>
 
 <!-- Toast -->
@@ -1118,7 +1073,7 @@ async function submitForm(type) {
   // Basic validation
   const required = type === 'receiving'
     ? ['r-date', 'r-time', 'r-foreman', 'r-supplier']
-    : ['d-date', 'd-time', 'd-foreman', 'd-driver', 'd-note', 'd-customer'];
+    : ['d-date', 'd-time', 'd-foreman', 'd-driver', 'd-trailer', 'd-customer'];
 
   for (const id of required) {
     const el = document.getElementById(id);
@@ -1154,6 +1109,10 @@ async function submitForm(type) {
   // Build payload
   let payload = { formType: type, ref, pallets, totalPallets: total };
 
+  // Get signature
+  const sigCanvas = document.getElementById(prefix + '-sig-canvas');
+  const sigData = (sigs[prefix] && sigs[prefix].hasSig()) ? sigCanvas.toDataURL('image/png') : null;
+
   if (type === 'receiving') {
     payload = { ...payload,
       date: document.getElementById('r-date').value,
@@ -1164,9 +1123,9 @@ async function submitForm(type) {
       trailerPlate: document.getElementById('r-trailer').value,
       supplier: document.getElementById('r-supplier').value,
       collectionRef: document.getElementById('r-ref').value,
-      arrivalType: document.querySelector('#r-arrival-type .selected')?.textContent || '',
-      condition: document.querySelector('#r-condition .selected')?.textContent || '',
+      condition: document.querySelector('#r-condition .selected')?.dataset.value || document.querySelector('#r-condition .selected')?.textContent.trim() || '',
       notes: document.querySelector('#screen-receiving textarea')?.value || '',
+      signature: sigData,
     };
   } else {
     payload = { ...payload,
@@ -1177,12 +1136,12 @@ async function submitForm(type) {
       truckPlate: document.getElementById('d-truck').value,
       trailerPlate: document.getElementById('d-trailer').value,
       deliveryNote: document.getElementById('d-note').value,
-      deliveryType: document.querySelector('#d-type .selected')?.textContent || '',
       customer: document.getElementById('d-customer').value,
       address: document.getElementById('d-address').value,
       scheduledTime: document.getElementById('d-sched').value,
-      fixedTime: document.querySelector('#d-fixed .selected')?.textContent || '',
+      fixedTime: document.querySelector('#d-fixed .selected')?.dataset.value || '',
       notes: document.querySelector('#screen-dispatch textarea')?.value || '',
+      signature: sigData,
     };
   }
 
@@ -1198,6 +1157,9 @@ async function submitForm(type) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+
+    // Save form data for PDF
+    lastFormData = { ...payload };
 
     // Show success
     const customer = type === 'receiving'
@@ -1219,6 +1181,275 @@ async function submitForm(type) {
 }
 
 // ── Init ─────────────────────────────────────────────────────────
+let lastFormData = {};
+let lastPDFBlob = null;
+
+function generatePDF(data) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  const isReceiving = data.formType === 'receiving';
+  const GREEN = [46, 125, 50];
+  const BLACK = [26, 26, 26];
+  const LIGHT = [232, 245, 233];
+  const W = 210;
+  const margin = 14;
+  let y = 0;
+
+  // ── Header ──
+  doc.setFillColor(...BLACK);
+  doc.rect(0, 0, W, 28, 'F');
+  doc.setFillColor(...GREEN);
+  doc.rect(0, 28, W, 10, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(255, 255, 255);
+  doc.text('SAL', margin, 18);
+  doc.setTextColor(76, 175, 80);
+  doc.text('PAL', margin + 16, 18);
+
+  doc.setFontSize(13);
+  doc.setTextColor(255, 255, 255);
+  const title = isReceiving ? 'GOODS RECEIVING FORM' : 'DISPATCH FORM';
+  doc.text(title, W / 2, 18, { align: 'center' });
+
+  doc.setFontSize(9);
+  doc.setTextColor(255, 255, 255);
+  doc.text('REF: ' + data.ref, W - margin, 18, { align: 'right' });
+  doc.text('Pallet Operations · Basel', W - margin, 24, { align: 'right' });
+
+  doc.setFontSize(9);
+  doc.setTextColor(255,255,255);
+  doc.text(new Date().toLocaleString(), margin, 34);
+
+  y = 44;
+
+  // ── Helper functions ──
+  function sectionHeader(text, color = GREEN) {
+    doc.setFillColor(...color);
+    doc.rect(margin, y, W - margin * 2, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    doc.text(text, margin + 3, y + 5);
+    y += 9;
+  }
+
+  function row(label, value) {
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, y, 55, 7, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(margin, y, W - margin * 2, 7, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(80, 80, 80);
+    doc.text(label, margin + 2, y + 5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 26);
+    doc.text(String(value || '—'), margin + 57, y + 5);
+    y += 8;
+  }
+
+  function twoRows(l1, v1, l2, v2) {
+    const hw = (W - margin * 2) / 2;
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, y, 28, 7, 'F');
+    doc.rect(margin + hw, y, 28, 7, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(margin, y, hw, 7, 'S');
+    doc.rect(margin + hw, y, hw, 7, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(80, 80, 80);
+    doc.text(l1, margin + 2, y + 5);
+    doc.text(l2, margin + hw + 2, y + 5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 26);
+    doc.text(String(v1 || '—'), margin + 30, y + 5);
+    doc.text(String(v2 || '—'), margin + hw + 30, y + 5);
+    y += 8;
+  }
+
+  // ── Section 1: General Info ──
+  sectionHeader('1. GENERAL INFORMATION');
+  twoRows('Date', data.date, 'Time', data.time);
+  twoRows('Foreman', data.foreman, 'Driver', data.driver);
+  twoRows('Truck Plate', data.truckPlate, 'Trailer Plate', data.trailerPlate);
+
+  if (isReceiving) {
+    row('Supplier / Customer', data.supplier);
+    row('Collection Ref #', data.collectionRef);
+  } else {
+    row('Customer', data.customer);
+    row('Delivery Address', data.address);
+    twoRows('Delivery Note #', data.deliveryNote, 'Delivery Type', data.deliveryType);
+    twoRows('Scheduled Time', data.scheduledTime, 'Fixed Time', data.fixedTime);
+  }
+
+  y += 4;
+
+  // ── Section 2: Pallets ──
+  sectionHeader('2. PALLETS ' + (isReceiving ? 'RECEIVED' : 'LOADED'));
+
+  // Table header
+  doc.setFillColor(...BLACK);
+  doc.rect(margin, y, W - margin * 2, 7, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text('CLASS', margin + 3, y + 5);
+  doc.text('QTY', margin + 80, y + 5);
+  y += 7;
+
+  const pallets = data.pallets || [];
+  pallets.forEach((p, i) => {
+    doc.setFillColor(i % 2 === 0 ? 232 : 245, i % 2 === 0 ? 245 : 245, i % 2 === 0 ? 233 : 245);
+    doc.rect(margin, y, W - margin * 2, 7, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(margin, y, W - margin * 2, 7, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(26, 26, 26);
+    doc.text(p.class, margin + 3, y + 5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(p.qty), margin + 80, y + 5);
+    y += 7;
+  });
+
+  // Total row
+  doc.setFillColor(...GREEN);
+  doc.rect(margin, y, W - margin * 2, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(255, 255, 255);
+  doc.text('TOTAL PALLETS', margin + 3, y + 5.5);
+  doc.text(String(data.totalPallets), margin + 80, y + 5.5);
+  y += 12;
+
+  // ── Section 3: Quality / Notes ──
+  if (isReceiving && data.condition) {
+    sectionHeader('3. QUALITY ASSESSMENT');
+    row('Condition', data.condition);
+    y += 2;
+  }
+
+  if (data.notes) {
+    sectionHeader(isReceiving ? '4. NOTES' : '3. NOTES');
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(margin, y, W - margin * 2, 16, 'FD');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(26, 26, 26);
+    const noteLines = doc.splitTextToSize(data.notes, W - margin * 2 - 6);
+    doc.text(noteLines, margin + 3, y + 6);
+    y += 20;
+  }
+
+  // ── Signature section ──
+  sectionHeader((isReceiving ? '5' : '4') + '. CONFIRMATION & SIGNATURE', BLACK);
+
+  doc.setFillColor(245, 245, 245);
+  doc.rect(margin, y, W - margin * 2, 32, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.rect(margin, y, W - margin * 2, 32, 'S');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Name: ' + (data.foreman || ''), margin + 3, y + 6);
+  doc.text('Date & Time: ' + data.date + ' ' + data.time, margin + 3, y + 12);
+
+  // Draw signature image if available
+  if (data.signature) {
+    try {
+      doc.addImage(data.signature, 'PNG', margin + 3, y + 15, 80, 14);
+    } catch(e) {}
+  } else {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(180, 180, 180);
+    doc.text('No signature provided', margin + 3, y + 24);
+  }
+  y += 36;
+
+  // ── Footer ──
+  doc.setFillColor(...BLACK);
+  doc.rect(0, 285, W, 12, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(180, 180, 180);
+  doc.text('SalPal · Pallet Operations · Basel', margin, 292);
+  doc.text('REF: ' + data.ref + '  |  ' + new Date().toLocaleString(), W - margin, 292, { align: 'right' });
+
+  return doc;
+}
+
+function downloadPDF() {
+  if (!lastFormData.ref) return;
+  const doc = generatePDF(lastFormData);
+  const filename = lastFormData.ref + '.pdf';
+  doc.save(filename);
+  showToast('📄 PDF downloaded!');
+}
+
+function shareWhatsApp() {
+  if (!lastFormData.ref) return;
+  const d = lastFormData;
+  const isReceiving = d.formType === 'receiving';
+
+  const palletSummary = (d.pallets || [])
+    .filter(p => p.qty > 0)
+    .map(p => p.class + ' × ' + p.qty)
+    .join(', ');
+
+  function line(label, value) {
+    if (!value || value === '—' || value === '') return '';
+    return '%0A' + label + ': ' + encodeURIComponent(value);
+  }
+
+  let msg = (isReceiving ? '📥 *GOODS RECEIVING FORM*' : '📤 *DISPATCH FORM*');
+  msg += '%0A' + '─────────────────────';
+  msg += line('Ref', d.ref);
+  msg += line('Date', d.date + ' ' + d.time);
+  msg += line('Foreman', d.foreman);
+
+  if (isReceiving) {
+    msg += line('Driver', d.driver);
+    msg += line('Truck', d.truckPlate);
+    msg += line('Trailer', d.trailerPlate);
+    msg += line('Supplier', d.supplier);
+    msg += line('Collection Ref', d.collectionRef);
+    msg += line('Condition', d.condition);
+  } else {
+    msg += line('Driver', d.driver);
+    msg += line('Truck', d.truckPlate);
+    msg += line('Trailer', d.trailerPlate);
+    msg += line('Delivery Note', d.deliveryNote);
+      msg += line('Customer', d.customer);
+    msg += line('Address', d.address);
+    msg += line('Scheduled Time', d.scheduledTime);
+    msg += line('Fixed Time', d.fixedTime);
+  }
+
+  msg += '%0A' + '─────────────────────';
+  msg += '%0A🧱 *PALLETS:*';
+  (d.pallets || []).filter(p => p.qty > 0).forEach(p => {
+    msg += '%0A  • ' + encodeURIComponent(p.class) + ' × ' + p.qty;
+  });
+  msg += '%0A*TOTAL: ' + d.totalPallets + ' pallets*';
+
+  if (d.notes) {
+    msg += '%0A' + '─────────────────────';
+    msg += '%0A📝 Notes: ' + encodeURIComponent(d.notes);
+  }
+
+  msg += '%0A' + '─────────────────────';
+  msg += '%0A_SalPal Warehouse App_';
+
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
 initDateTime();
 </script>
 </body>
