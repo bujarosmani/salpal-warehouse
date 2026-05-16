@@ -667,7 +667,7 @@ canvas { width: 100%; height: 100%; touch-action: none; }
             <option value="SINGLE USE">SINGLE USE</option>
             <option value="CUSTOM SIZE">CUSTOM SIZE</option>
             <option value="DAMAGED">DAMAGED — For Repair</option>
-            <option value="UNCLASSIFIED">UNCLASSIFIED</option></select>
+            <option value="UNCLASSIFIED">UNCLASSIFIED</option><option value="GB-Gitterbix">GB-Gitterbix</option><option value="H1">H1</option><option value="CP1">CP1</option><option value="CP3">CP3</option></select>
           <input type="number" class="pallet-qty-input" min="0" placeholder="0" oninput="updateTotal('r')">
           <button class="pallet-del-btn" onclick="delLine(this,'r')">×</button>
         </div>
@@ -827,7 +827,7 @@ canvas { width: 100%; height: 100%; touch-action: none; }
             <option value="SINGLE USE">SINGLE USE</option>
             <option value="CUSTOM SIZE">CUSTOM SIZE</option>
             <option value="DAMAGED">DAMAGED — For Repair</option>
-            <option value="UNCLASSIFIED">UNCLASSIFIED</option></select>
+            <option value="UNCLASSIFIED">UNCLASSIFIED</option><option value="GB-Gitterbix">GB-Gitterbix</option><option value="H1">H1</option><option value="CP1">CP1</option><option value="CP3">CP3</option></select>
           <input type="number" class="pallet-qty-input" min="0" placeholder="0" oninput="updateTotal('d')">
           <button class="pallet-del-btn" onclick="delLine(this,'d')">×</button>
         </div>
@@ -945,7 +945,11 @@ const PALLET_OPTIONS = `<option value="">Select class...</option>
   <option value="SINGLE USE">SINGLE USE</option>
   <option value="CUSTOM SIZE">CUSTOM SIZE</option>
   <option value="DAMAGED">DAMAGED — For Repair</option>
-  <option value="UNCLASSIFIED">UNCLASSIFIED</option>`;
+  <option value="UNCLASSIFIED">UNCLASSIFIED</option>
+  <option value="GB-Gitterbix">GB-Gitterbix</option>
+  <option value="H1">H1</option>
+  <option value="CP1">CP1</option>
+  <option value="CP3">CP3</option>`;
 
 function addLine(prefix) {
   const container = document.getElementById(prefix + '-pallet-lines');
